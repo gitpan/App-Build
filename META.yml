@@ -1,18 +1,17 @@
 ---
 name: App-Build
-version: 0.10
+version: 0.50
 author:
   - stephen.adkins@officevision.com
-abstract: a base/default class for building/installing applications
+abstract: an extension to Module::Build to build/install entire applications
 license: perl
 requires:
   App::Options: 0
   File::Spec: 0
 build_requires:
   Module::Build: 0
-  Sysadm::Install: 0
 provides:
   App::Build:
     file: lib/App/Build.pm
-    version: 0.10
+    version: 0.50
 generated_by: Module::Build version 0.261
