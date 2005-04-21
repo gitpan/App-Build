@@ -1,9 +1,9 @@
 ---
 name: App-Build
-version: 0.50
+version: 0.60
 author:
   - stephen.adkins@officevision.com
-abstract: an extension to Module::Build to build/install entire applications
+abstract: 'extends Module::Build to build/install/configure entire applications, not just modules and programs'
 license: perl
 requires:
   App::Options: 0
@@ -13,5 +13,5 @@ build_requires:
 provides:
   App::Build:
     file: lib/App/Build.pm
-    version: 0.50
+    version: 0.60
 generated_by: Module::Build version 0.261
