@@ -1,6 +1,6 @@
 ---
 name: App-Build
-version: 0.63
+version: 0.64
 author:
   - 'Mattia Barbon <mbarbon@cpan.org>'
   - spadkins@gmail.com
@@ -17,7 +17,7 @@ build_requires:
 provides:
   App::Build:
     file: lib/App/Build.pm
-    version: 0.63
+    version: 0.64
 generated_by: Module::Build version 0.2806
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
