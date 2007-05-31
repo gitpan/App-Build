@@ -1,18 +1,14 @@
-
 package App::Build;
+
+use strict;
 
 use App::Options;
 use Module::Build;
 use Cwd ();
 use File::Spec;
 
-# until I get to 1.0, I will update the version number manually
-$VERSION = "0.64";
-#$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
-
-@ISA = ("Module::Build");
-
-use strict;
+our $VERSION = "0.65";
+our @ISA = ("Module::Build");
 
 =head1 NAME
 
@@ -209,14 +205,29 @@ sub new {
         die "must provide a dist_name" if ($dist_name eq "App-Build");
     }
 
-    $obj->_enhance_install_paths();
+    $obj->_enhance_install_paths() if $obj->_prefix;
     $obj->_get_supporting_software();
+    # $obj->add_property( skip_install, [] );
 
     #print "new() = $obj\n";
     #print "obj = {", join(",", %$obj), "}\n";
     #print "obj{properties} = {", join(",", %{$obj->{properties}}), "}\n";
 
     return($obj);
+}
+
+sub read_config {
+    my ($self) = @_;
+
+    $self->SUPER::read_config();
+    $self->_enhance_install_paths() if $self->_prefix;
+}
+
+sub install_base {
+    my ($self, @args) = @_;
+
+    $self->SUPER::install_base(@args);
+    $self->_enhance_install_paths() if $self->_prefix;
 }
 
 =head2 _get_supporting_software()
@@ -449,7 +460,7 @@ sub _get_extra_dirs_attributes {
              $extra_dirs = { map { $_ => { dest_dir => $_ } } @extra_dirs };
         }
         foreach my $dir (@extra_dirs) {
-            $extra_dirs->{dir}{dest_dir} = $dir if (!$extra_dirs->{dir}{dest_dir});
+            $extra_dirs->{$dir}{dest_dir} = $dir if (!$extra_dirs->{$dir}{dest_dir});
         }
     }
     return($extra_dirs);
@@ -666,6 +677,13 @@ sub install_map {
       die "Can't figure out where to install things of type '$type'"
         unless $type =~ /^(lib|bin)doc$/;
     }
+  }
+
+  my $extra_dirs_attrs = $self->_get_extra_dirs_attributes();
+  foreach my $dir ( $self->_get_extra_dirs() ) {
+    $map{File::Spec->catdir( $blib, $dir )} =
+         File::Spec->catdir( $self->_prefix,
+                             $extra_dirs_attrs->{$dir}{dest_dir} );
   }
 
   if ($self->create_packlist) {
