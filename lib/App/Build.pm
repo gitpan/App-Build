@@ -6,8 +6,10 @@ use App::Options;
 use Module::Build;
 use Cwd ();
 use File::Spec;
+use File::Basename qw();
+use File::Path qw();
 
-our $VERSION = "0.66";
+our $VERSION = "0.67";
 our @ISA = ("Module::Build");
 
 =head1 NAME
@@ -196,22 +198,10 @@ distributions.
 
 sub new {
     my ($class, %args) = @_;
-    #print "new($class, {", join(",",%args), "})\n";
-
     my $obj = $class->SUPER::new(%args);
-
-    my $dist_name = $args{dist_name};
-    if (!$dist_name) {
-        die "must provide a dist_name" if ($dist_name eq "App-Build");
-    }
 
     $obj->_enhance_install_paths() if $obj->_prefix;
     $obj->_get_supporting_software();
-    # $obj->add_property( skip_install, [] );
-
-    #print "new() = $obj\n";
-    #print "obj = {", join(",", %$obj), "}\n";
-    #print "obj{properties} = {", join(",", %{$obj->{properties}}), "}\n";
 
     return($obj);
 }
@@ -271,7 +261,6 @@ sub _get_supporting_software {
         }
         ($subdir) || die "Subdir [$tag.subdir] does not exist";
 
-        my $prefix = $App::options{install_prefix} || $App::options{prefix};
         my $archive_dir = $App::options{archive_dir} || "archive";
         mkdir($archive_dir) if (! -d $archive_dir);
 
@@ -492,7 +481,6 @@ sub process_app_files {
 
     my @extra_dirs = $self->_get_extra_dirs();
     my $extra_dirs = $self->_get_extra_dirs_attributes();
-    # print "process_app_files(): extra_dirs=[@extra_dirs]\n";
 
     my $blib = $self->blib;
     my ($contains_executables, $result, $target_file);
@@ -690,7 +678,7 @@ sub configure {
 
 =head2 mirror()
 
-    * Signature: App::Build->mirror($url, $file);
+    * Signature: $build->mirror($url, $file);
     * Param:  $url          string
     * Param:  $file         string
 
@@ -699,19 +687,24 @@ TODO: Should be rewritten to use cross-platform, pure-perl.
 =cut
 
 sub mirror {
-    my ($class, $url, $file) = @_;
+    my ($self, $url, $file) = @_;
     if (! -f $file) {
-        print "Mirroring $url to $file\n";
-        system("wget -O $file $url");
+        $self->log_info("Mirroring $url to $file\n");
+        require File::Fetch;
+        my $ff = File::Fetch->new(uri => $url);
+        my $where = $ff->fetch(to => File::Basename::dirname($file));
+        if($where) {
+            rename($where, $file);
+        }
     }
     else {
-        print "Mirrored file $file up to date\n";
+        $self->log_info("Mirrored file $file up to date\n");
     }
 }
 
 =head2 unpack()
 
-    * Signature: App::Build->unpack($archive_file, $directory, $subdir);
+    * Signature: $build->unpack($archive_file, $directory, $subdir);
     * Param:  $archive_file string
     * Param:  $directory    string
     * Param:  $subdir       string
@@ -721,47 +714,27 @@ TODO: Should be rewritten to use cross-platform, pure-perl.
 =cut
 
 sub unpack {
-    my ($class, $archive_file, $directory, $subdir) = @_;
-    my $verbose = $App::options{verbose};
+    my ($self, $archive_file, $directory, $subdir) = @_;
+    require Archive::Extract;
     $directory ||= "$App::options{install_prefix}/src";
     mkdir($directory) if (! -d $directory);
     die "Directory $directory does not exist and can't be created" if (! -d $directory);
 
-    my $start_dir = Cwd::getcwd();
     if (! File::Spec->file_name_is_absolute($archive_file)) {
-        $archive_file = File::Spec->catfile($start_dir, $archive_file);
+        $archive_file = File::Spec->catfile(Cwd::getcwd(), $archive_file);
     }
+    $subdir = File::Spec->catdir($directory, $subdir);
 
-    chdir($directory);
     if ($subdir && -d $subdir) {
-        print "Removing preexisting directory $subdir ...\n" if ($verbose);
-        system("rm -rf $subdir");
-        print "Removing done.\n" if ($verbose);
+        $self->log_info("Removing preexisting directory $subdir ...\n");
+        File::Path::rmtree($subdir);
     }
-    print "Unpacking $archive_file ...\n" if ($verbose);
+    $self->log_info("Unpacking $archive_file ...\n");
 
-    # my $archive = Archive::Any->new($archive_file);
-    # $archive->extract;
-    # my @files = $archive->files;
-    # my $type = $archive->type;
-    # $archive->is_impolite;
-    # $archive->is_naughty;
-
-    if ($archive_file =~ /\.zip$/) {
-        system("unzip $archive_file");
-    }
-    elsif ($archive_file =~ /\.tar\.gz$/ || $archive_file =~ /\.tgz$/) {
-        system("tar xvzf $archive_file");
-    }
-    else {
-        die "Unknown archive type: $archive_file\n";
-    }
-
-    print "Unpacking done.\n" if ($verbose);
+    my $ae = Archive::Extract->new(archive => $archive_file);
+    my $ok = $ae->extract(to => $directory) or die $ae->error;
 
     die "Subdirectory $subdir not created" if (! -d $subdir);
-
-    chdir($start_dir);
 }
 
 =head1 ACKNOWLEDGEMENTS

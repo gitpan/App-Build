@@ -7,9 +7,10 @@ use File::Path qw();
 use Fatal qw(chdir open);
 use Test::Differences;
 use File::Find;
+use ExtUtils::Command qw();
 
 our @EXPORT = qw(run_build_pl run_build clean_install check_tree
-                 set_module_dir);
+                 set_module_dir touch_file);
 
 my $module_dir = 'Call set_module_dir()';
 my $support_executable_bit = 0;
@@ -21,6 +22,8 @@ sub set_module_dir {
 sub clean_install {
     File::Path::rmtree( 't/test_install' );
     File::Path::rmtree( 't/Foo/blib' );
+    File::Path::rmtree( 'archive' );
+    File::Path::rmtree( 'unpack' );
     File::Path::mkpath( 't/test_install' );
 
     open my $fh, '>', 't/test_install/is_x';
@@ -76,6 +79,11 @@ sub check_tree {
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     eq_or_diff( $found, $fixed_tree );
+}
+
+sub touch_file {
+    local @ARGV = $_[0];
+    ExtUtils::Command::touch();
 }
 
 1;
