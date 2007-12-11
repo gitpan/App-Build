@@ -3,13 +3,19 @@ package App::Build;
 use strict;
 
 use App::Options;
+
+# undo @ARGV manipulation done by App::Build, to allow Module::Build to work
+BEGIN {
+    @ARGV = @App::Options::ARGV;
+}
+
 use Module::Build;
 use Cwd ();
 use File::Spec;
 use File::Basename qw();
 use File::Path qw();
 
-our $VERSION = "0.68";
+our $VERSION = "0.69";
 our @ISA = ("Module::Build");
 
 =head1 NAME
@@ -126,9 +132,9 @@ installations.
 
 =head1 App::Build CONFIGURABILITY
 
-Since App::Build uses App::Options, App::Options strips off all
-of the --var=value options out of @ARGV and makes them available
-via the global %App::options hash.
+Since App::Build uses App::Options, App::Options makes all the
+of the --var=value options available via the global %App::options hash.
+App::Build however does not remove the --var=value options from @ARGV.
 
 This will be put to good use sometime in the future.
 
@@ -151,28 +157,9 @@ essentially the same thing.
 
 delete $ENV{PREFIX};   # Module::Build protests if this var is set
 
-shift(@ARGV) if ($#ARGV > -1 && $ARGV[0] eq "Build");
-
 # Enable the continued use of the PREFIX=$PREFIX option
 # (from Makefile.PL and ExtUtils::MakeMaker) by making it
 # an alias for the "install_base" option of Module::Build.
-
-# Also, install scripts into $PREFIX/bin, not $PREFIX/scripts.
-
-my (@extra_args);
-foreach my $arg (@ARGV) {
-    if ($arg =~ s!^PREFIX=(.*)!install_base=$1!i) {
-        @extra_args = (
-            install_path => {bin => File::Spec->catdir($1,"bin")},
-        );
-    }
-    elsif ($arg =~ m!^install_base=(.*)!) {
-        # Install scripts into $PREFIX/bin, not $PREFIX/scripts
-        @extra_args = (
-            install_path => {bin => File::Spec->catdir($1,"bin")},
-        );
-    }
-}
 
 ######################################################################
 # BUILD: enhancements to "perl Build.PL"
@@ -228,8 +215,10 @@ Overridden to transparently call C<_enhance_install_paths()>.
 sub install_base {
     my ($self, @args) = @_;
 
-    $self->SUPER::install_base(@args);
+    my $ret = $self->SUPER::install_base(@args);
     $self->_enhance_install_paths() if $self->_prefix;
+
+    return $ret;
 }
 
 =head2 _get_supporting_software()
@@ -408,7 +397,8 @@ are hashrefs of attributes. i.e.
        },
    },
 
-So far, only the "dest_dir" attribute is defined.
+So far, only the "dest_dir" attribute is defined.  The "dest_dir" attribute
+can be overridden using the "--install_path" parameter.
 
 =cut
 
@@ -461,6 +451,8 @@ sub _get_extra_dirs_attributes {
              $extra_dirs = { map { $_ => { dest_dir => $_ } } @extra_dirs };
         }
         foreach my $dir (@extra_dirs) {
+            $extra_dirs->{$dir}{dest_dir} = $self->install_path($dir)
+              if $self->install_path($dir);
             $extra_dirs->{$dir}{dest_dir} = $dir if (!$extra_dirs->{$dir}{dest_dir});
         }
     }
@@ -584,6 +576,12 @@ sub install_map {
     next unless -e $localdir;
 
     if (my $dest = $self->install_destination($type)) {
+      # thins alters the behavious of Module::Build, and
+      # looks into the implementation
+      if (   $self->install_path($type)
+          && !File::Spec->file_name_is_absolute($dest)) {
+        $dest = File::Spec->catdir( $self->_prefix, $dest );
+      }
       $map{$localdir} = $dest;
     } else {
       # Platforms like Win32, MacOS, etc. may not build man pages
@@ -594,9 +592,11 @@ sub install_map {
 
   my $extra_dirs_attrs = $self->_get_extra_dirs_attributes();
   foreach my $dir ( $self->_get_extra_dirs() ) {
-    $map{File::Spec->catdir( $blib, $dir )} =
-         File::Spec->catdir( $self->_prefix,
-                             $extra_dirs_attrs->{$dir}{dest_dir} );
+    my $dest = $extra_dirs_attrs->{$dir}{dest_dir};
+    if (!File::Spec->file_name_is_absolute($dest)) {
+      $dest = File::Spec->catdir( $self->_prefix, $dest );
+    }
+    $map{File::Spec->catdir( $blib, $dir )} = $dest;
   }
 
   if ($self->create_packlist) {
