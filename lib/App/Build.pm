@@ -13,7 +13,7 @@ use File::Spec;
 use File::Basename qw();
 use File::Path qw();
 
-our $VERSION = "0.71";
+our $VERSION = "0.72";
 our @ISA = ("Module::Build");
 
 =head1 NAME
@@ -739,7 +739,16 @@ sub unpack {
 
  * Author:  Stephen Adkins <stephen.adkins@officevision.com>
  * Maintainer: Mattia Barbon <mbarbon@cpan.org>
- * License: This is free software. It is licensed under the same terms as Perl itself.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=head1 SOURCES
+
+The latest sources can be found on GitHub at
+L<http://github.com/mbarbon/app-build/tree>
 
 =head1 SEE ALSO
 
