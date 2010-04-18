@@ -1,25 +1,27 @@
 ---
-name: App-Build
-version: 0.72
+abstract: 'extends Module::Build to build/install/configure entire applications (i.e. web applications), not just modules and programs'
 author:
   - 'Mattia Barbon <mbarbon@cpan.org>'
   - spadkins@gmail.com
-abstract: 'extends Module::Build to build/install/configure entire applications (i.e. web applications), not just modules and programs'
+build_requires:
+  Module::Build: 0.28
+  Test::Differences: 0.47
+configure_requires:
+  Module::Build: 0.36
+generated_by: 'Module::Build version 0.3603'
 license: perl
-resources:
-  license: http://dev.perl.org/licenses/
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: App-Build
+provides:
+  App::Build:
+    file: lib/App/Build.pm
+    version: 0.73
 requires:
   App::Options: 0
   File::Spec: 0
   Module::Build: 0.28
-build_requires:
-  Module::Build: 0.28
-  Test::Differences: 0.47
-provides:
-  App::Build:
-    file: lib/App/Build.pm
-    version: 0.72
-generated_by: Module::Build version 0.3
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.73
