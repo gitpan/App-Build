@@ -19,7 +19,8 @@ my $module_dir = 'Call set_module_dir()';
 my $support_executable_bit = 0;
 my $support_html =    Module::Build::ConfigData->feature( 'HTML_support' )
                    && $Config{installhtmldir};
-my $support_man = Module::Build::ConfigData->feature( 'manpage_support' );
+my $support_man = Module::Build::ConfigData->feature( 'manpage_support' )
+                  && $Config{man3ext};
 
 sub if_has_html { $support_html ? @_ : () }
 sub if_has_man  { $support_man  ? @_ : () }
@@ -54,6 +55,7 @@ sub _run {
 
 sub run_build_pl {
     my( @args ) = @_;
+    local $ENV{PERL_MB_OPT};
     chdir $module_dir;
     _run( 'Build.PL', @args );
     chdir '../..';
@@ -61,6 +63,7 @@ sub run_build_pl {
 
 sub run_build {
     my( @args ) = @_;
+    local $ENV{PERL_MB_OPT};
     chdir $module_dir;
     _run( 'Build', @args );
     chdir '../..';
