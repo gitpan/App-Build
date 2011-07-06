@@ -7,8 +7,9 @@ build_requires:
   Module::Build: 0.28
   Test::Differences: 0.47
 configure_requires:
-  Module::Build: 0.36
-generated_by: 'Module::Build version 0.3624'
+  Module::Build: 0.38
+dynamic_config: 1
+generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.110930'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -17,11 +18,11 @@ name: App-Build
 provides:
   App::Build:
     file: lib/App/Build.pm
-    version: 0.74
+    version: 0.74_01
 requires:
   App::Options: 0
   File::Spec: 0
   Module::Build: 0.28
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.74
+version: 0.74_01

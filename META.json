@@ -1,0 +1,50 @@
+{
+   "abstract" : "extends Module::Build to build/install/configure entire applications (i.e. web applications), not just modules and programs",
+   "author" : [
+      "Mattia Barbon <mbarbon@cpan.org>",
+      "spadkins@gmail.com"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.110930",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "App-Build",
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Module::Build" : "0.28",
+            "Test::Differences" : "0.47"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0.38"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "App::Options" : 0,
+            "File::Spec" : 0,
+            "Module::Build" : "0.28"
+         }
+      }
+   },
+   "provides" : {
+      "App::Build" : {
+         "file" : "lib/App/Build.pm",
+         "version" : "0.74_01"
+      }
+   },
+   "release_status" : "testing",
+   "resources" : {
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ]
+   },
+   "version" : "0.74_01"
+}
