@@ -18,11 +18,11 @@ name: App-Build
 provides:
   App::Build:
     file: lib/App/Build.pm
-    version: 0.74_02
+    version: 0.74_03
 requires:
   App::Options: 0
   File::Spec: 0
   Module::Build: 0.28
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.74_02
+version: 0.74_03
