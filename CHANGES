@@ -2,6 +2,10 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.74_04
+ x Test fix for the tests where we set libdir ourselves (so there
+   is a man path but not the default one).
+
 Version 0.74_03
  x Blind test fix for cases when install{site}man3dir is not set.
 

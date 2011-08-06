@@ -22,6 +22,6 @@ check_tree( 't/test_install/simple',
               'htdocs/.htaccess'     => {},
               'lib/MyFoo.pm'         => {},
               'lib/MyPod.pm'         => {},
-              if_has_man( "man/man3/MyPod.$Config{man3ext}" => {} ),
+              if_has_man_path( "man/man3/MyPod.$Config{man3ext}" => {} ),
               if_has_html( "html/site/lib/MyPod.html" => {} ),
             } );

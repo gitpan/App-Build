@@ -37,7 +37,7 @@
    "provides" : {
       "App::Build" : {
          "file" : "lib/App/Build.pm",
-         "version" : "0.74_03"
+         "version" : "0.74_04"
       }
    },
    "release_status" : "testing",
@@ -46,5 +46,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "0.74_03"
+   "version" : "0.74_04"
 }
